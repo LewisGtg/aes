@@ -41,7 +41,6 @@
  * use where we're using them to implement the higher level EVP interface, as is
  * the case here.
  */
-#include "internal/deprecated.h"
 
 #include <assert.h>
 
