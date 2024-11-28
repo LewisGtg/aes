@@ -4,8 +4,8 @@
 
 int main()
 {
-    char texto[16] = "plaintextblock";
-    char chave[16] = "criptografiaaa";
+    char texto[13] = "UNIVERSIDADE";
+    char chave[13] = "CRIPTOGRAFIA";
     onetimepad_t * otp = iniciaOnetimepad();
 
     char * texto_cifrado = cifraTexto(otp, texto, chave);
@@ -13,4 +13,7 @@ int main()
     printf("\n");
     printf("texto: %s\n", texto);
     printf("texto cifrado %s\n", texto_cifrado);
+
+    char * texto_decifrado = decifraTexto(otp, texto_cifrado, chave);
+    printf("texto decifrado %s\n", texto_decifrado);
 }
