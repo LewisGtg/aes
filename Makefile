@@ -5,3 +5,9 @@ main: main.c aes.o
 
 aes.o: aes.c
 	gcc -c aes.c -o aes.o
+
+testaOnetimepad: testaOnetimepad.c onetimepad.o
+	gcc testaOnetimepad.c onetimepad.o -o testaOnetimepad
+
+onetimepad.o: onetimepad.c
+	gcc -c onetimepad.c -o onetimepad.o
