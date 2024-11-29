@@ -1,15 +1,7 @@
-#define NUM_CHARS 26
-#define INITIAL_CAPITAL_ASCII_LETTER 65
-#define INITIAL_LOWERCASE_ASCII_LETTER 97
+#define NUM_CHARS_ASCII 255
 
-typedef struct onetimepad {
-    int * tabela;
-} onetimepad_t;
+char * cifraTexto(char * texto, char * chave);
 
-onetimepad_t * iniciaOnetimepad();
+char * decifraTexto(char * texto_cifrado, char * chave);
 
-char * cifraTexto(onetimepad_t * otp, char * texto, char * chave);
-
-char * decifraTexto(onetimepad_t * otp, char * texto_cifrado, char * chave);
-
-void imprimeTabela(onetimepad_t * otp);
+char * geraChave(int size);
