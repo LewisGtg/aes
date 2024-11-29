@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <openssl/crypto.h>
 #include <openssl/aes.h>
+#include "onetimepad.h"
 
 typedef unsigned int u32;
 typedef unsigned long long u64;
@@ -486,7 +487,7 @@ static void AddRoundKey(u64 *state, const u64 *w)
 }
 
 static void Cipher(const unsigned char *in, unsigned char *out,
-                   const u64 *w, int nr)
+                   const u64 *w, int nr, char * otp_key)
 {
     u64 state[2];
     int i;
@@ -496,15 +497,15 @@ static void Cipher(const unsigned char *in, unsigned char *out,
     AddRoundKey(state, w);
 
     for (i = 1; i < nr; i++) {
-        SubLong(&state[0]);
-        SubLong(&state[1]);
+        cifraTexto(&state[0], otp_key);
+        cifraTexto(&state[1], otp_key);
         ShiftRows(state);
         MixColumns(state);
         AddRoundKey(state, w + i*2);
     }
 
-    SubLong(&state[0]);
-    SubLong(&state[1]);
+    cifraTexto(&state[0], otp_key);
+    cifraTexto(&state[1], otp_key);
     ShiftRows(state);
     AddRoundKey(state, w + nr*2);
 
@@ -512,7 +513,7 @@ static void Cipher(const unsigned char *in, unsigned char *out,
 }
 
 static void InvCipher(const unsigned char *in, unsigned char *out,
-                      const u64 *w, int nr)
+                      const u64 *w, int nr, char * otp_key)
 
 {
     u64 state[2];
@@ -524,15 +525,15 @@ static void InvCipher(const unsigned char *in, unsigned char *out,
 
     for (i = nr - 1; i > 0; i--) {
         InvShiftRows(state);
-        InvSubLong(&state[0]);
-        InvSubLong(&state[1]);
+        decifraTexto(&state[0], otp_key);
+        decifraTexto(&state[1], otp_key);
         AddRoundKey(state, w + i*2);
         InvMixColumns(state);
     }
 
     InvShiftRows(state);
-    InvSubLong(&state[0]);
-    InvSubLong(&state[1]);
+    decifraTexto(&state[0], otp_key);
+    decifraTexto(&state[1], otp_key);
     AddRoundKey(state, w);
 
     memcpy(out, state, 16);
@@ -620,14 +621,14 @@ int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
  * in and out can overlap
  */
 void AES_encrypt(const unsigned char *in, unsigned char *out,
-                 const AES_KEY *key)
+                 const AES_KEY *key, char * OTP_KEY)
 {
     const u64 *rk;
 
     assert(in && out && key);
     rk = (u64*)key->rd_key;
 
-    Cipher(in, out, rk, key->rounds);
+    Cipher(in, out, rk, key->rounds, OTP_KEY);
 }
 
 /*
@@ -635,12 +636,12 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
  * in and out can overlap
  */
 void AES_decrypt(const unsigned char *in, unsigned char *out,
-                 const AES_KEY *key)
+                 const AES_KEY *key, char * OTP_KEY)
 {
     const u64 *rk;
 
     assert(in && out && key);
     rk = (u64*)key->rd_key;
 
-    InvCipher(in, out, rk, key->rounds);
+    InvCipher(in, out, rk, key->rounds, OTP_KEY);
 }
