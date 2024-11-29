@@ -10,7 +10,7 @@ char * cifraTexto(char * texto, char * chave)
     int size = strlen(texto);
     char * texto_cifrado = malloc(sizeof(char) * size);
 
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < size; i++)
     {
         texto_cifrado[i] = texto[i] ^ chave[i];
     }
@@ -23,7 +23,7 @@ char * decifraTexto(char * texto_cifrado, char * chave)
     int size = strlen(texto_cifrado);
     char * texto_decifrado = malloc(sizeof(char) * size);
 
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < size; i++)
     {
         texto_decifrado[i] = texto_cifrado[i] ^ chave[i];
     }
