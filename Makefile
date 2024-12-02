@@ -11,3 +11,6 @@ testaOnetimepad: testaOnetimepad.c onetimepad.o
 
 onetimepad.o: onetimepad.c
 	gcc -c onetimepad.c -o onetimepad.o
+
+clean:
+	rm -rf *.o encriptado.txt decriptado.txt main

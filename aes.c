@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <openssl/crypto.h>
-#include <openssl/aes.h>
+#include "aes.h"
 #include "onetimepad.h"
 
 typedef unsigned int u32;
@@ -497,15 +497,15 @@ static void Cipher(const unsigned char *in, unsigned char *out,
     AddRoundKey(state, w);
 
     for (i = 1; i < nr; i++) {
-        cifraTexto(&state[0], otp_key);
-        cifraTexto(&state[1], otp_key);
+        cifraTexto((char*)&state[0], otp_key);
+        cifraTexto((char*)&state[1], otp_key);
         ShiftRows(state);
         MixColumns(state);
         AddRoundKey(state, w + i*2);
     }
 
-    cifraTexto(&state[0], otp_key);
-    cifraTexto(&state[1], otp_key);
+    cifraTexto((char*)&state[0], otp_key);
+    cifraTexto((char*)&state[1], otp_key);
     ShiftRows(state);
     AddRoundKey(state, w + nr*2);
 
@@ -525,15 +525,15 @@ static void InvCipher(const unsigned char *in, unsigned char *out,
 
     for (i = nr - 1; i > 0; i--) {
         InvShiftRows(state);
-        decifraTexto(&state[0], otp_key);
-        decifraTexto(&state[1], otp_key);
+        decifraTexto((char*)&state[0], otp_key);
+        decifraTexto((char*)&state[1], otp_key);
         AddRoundKey(state, w + i*2);
         InvMixColumns(state);
     }
 
     InvShiftRows(state);
-    decifraTexto(&state[0], otp_key);
-    decifraTexto(&state[1], otp_key);
+    decifraTexto((char*)&state[0], otp_key);
+    decifraTexto((char*)&state[1], otp_key);
     AddRoundKey(state, w);
 
     memcpy(out, state, 16);
