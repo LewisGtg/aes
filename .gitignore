@@ -1,7 +1,7 @@
 .vscode
 *.o
-encriptado.txt
-decriptado.txt
+encriptado*.txt
+decriptado*.txt
 main
 oneTimePad
 testaOnetimepad

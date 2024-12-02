@@ -486,7 +486,7 @@ static void AddRoundKey(u64 *state, const u64 *w)
     state[1] ^= w[1];
 }
 
-static void Cipher(const unsigned char *in, unsigned char *out,
+static void CipherOTP(const unsigned char *in, unsigned char *out,
                    const u64 *w, int nr, char * otp_key)
 {
     u64 state[2];
@@ -512,7 +512,7 @@ static void Cipher(const unsigned char *in, unsigned char *out,
     memcpy(out, state, 16);
 }
 
-static void InvCipher(const unsigned char *in, unsigned char *out,
+static void InvCipherOTP(const unsigned char *in, unsigned char *out,
                       const u64 *w, int nr, char * otp_key)
 
 {
@@ -534,6 +534,59 @@ static void InvCipher(const unsigned char *in, unsigned char *out,
     InvShiftRows(state);
     decifraTexto((char*)&state[0], otp_key);
     decifraTexto((char*)&state[1], otp_key);
+    AddRoundKey(state, w);
+
+    memcpy(out, state, 16);
+}
+
+static void Cipher(const unsigned char *in, unsigned char *out,
+                   const u64 *w, int nr)
+{
+    u64 state[2];
+    int i;
+
+    memcpy(state, in, 16);
+
+    AddRoundKey(state, w);
+
+    for (i = 1; i < nr; i++) {
+        SubLong(&state[0]);
+        SubLong(&state[1]);
+        ShiftRows(state);
+        MixColumns(state);
+        AddRoundKey(state, w + i*2);
+    }
+
+    SubLong(&state[0]);
+    SubLong(&state[1]);
+    ShiftRows(state);
+    AddRoundKey(state, w + nr*2);
+
+    memcpy(out, state, 16);
+}
+
+static void InvCipher(const unsigned char *in, unsigned char *out,
+                      const u64 *w, int nr)
+
+{
+    u64 state[2];
+    int i;
+
+    memcpy(state, in, 16);
+
+    AddRoundKey(state, w + nr*2);
+
+    for (i = nr - 1; i > 0; i--) {
+        InvShiftRows(state);
+        InvSubLong(&state[0]);
+        InvSubLong(&state[1]);
+        AddRoundKey(state, w + i*2);
+        InvMixColumns(state);
+    }
+
+    InvShiftRows(state);
+    InvSubLong(&state[0]);
+    InvSubLong(&state[1]);
     AddRoundKey(state, w);
 
     memcpy(out, state, 16);
@@ -620,6 +673,32 @@ int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
  * Encrypt a single block
  * in and out can overlap
  */
+void AES_encryptOTP(const unsigned char *in, unsigned char *out,
+                 const AES_KEY *key, char * OTP_KEY)
+{
+    const u64 *rk;
+
+    assert(in && out && key);
+    rk = (u64*)key->rd_key;
+
+    CipherOTP(in, out, rk, key->rounds, OTP_KEY);
+}
+
+/*
+ * Decrypt a single block
+ * in and out can overlap
+ */
+void AES_decryptOTP(const unsigned char *in, unsigned char *out,
+                 const AES_KEY *key, char * OTP_KEY)
+{
+    const u64 *rk;
+
+    assert(in && out && key);
+    rk = (u64*)key->rd_key;
+
+    InvCipherOTP(in, out, rk, key->rounds, OTP_KEY);
+}
+
 void AES_encrypt(const unsigned char *in, unsigned char *out,
                  const AES_KEY *key, char * OTP_KEY)
 {
@@ -628,7 +707,7 @@ void AES_encrypt(const unsigned char *in, unsigned char *out,
     assert(in && out && key);
     rk = (u64*)key->rd_key;
 
-    Cipher(in, out, rk, key->rounds, OTP_KEY);
+    Cipher(in, out, rk, key->rounds);
 }
 
 /*
@@ -643,5 +722,5 @@ void AES_decrypt(const unsigned char *in, unsigned char *out,
     assert(in && out && key);
     rk = (u64*)key->rd_key;
 
-    InvCipher(in, out, rk, key->rounds, OTP_KEY);
+    InvCipher(in, out, rk, key->rounds);
 }
