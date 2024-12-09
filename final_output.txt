@@ -1,0 +1,40 @@
+./testes/lorem100.txt
+native openssl
+real	0m0,179s
+real	0m0,039s
+encript (otp)	decript (otp)	encript (sbox)	decript (sbox)
+8.562390s		9.209576s		8.816399s		10.305305s		
+-----------------------------------------------------
+
+./testes/lorem10.txt
+native openssl
+real	0m0,047s
+real	0m0,008s
+encript (otp)	decript (otp)	encript (sbox)	decript (sbox)
+0.977749s		0.977478s		0.920973s		1.043877s		
+-----------------------------------------------------
+
+./testes/lorem50.txt
+native openssl
+real	0m0,104s
+real	0m0,021s
+encript (otp)	decript (otp)	encript (sbox)	decript (sbox)
+4.503493s		4.788070s		4.665494s		5.342485s		
+-----------------------------------------------------
+
+./testes/shreka.txt
+native openssl
+real	0m0,008s
+real	0m0,003s
+encript (otp)	decript (otp)	encript (sbox)	decript (sbox)
+0.004462s		0.004901s		0.004737s		0.005221s		
+-----------------------------------------------------
+
+./testes/teste1.txt
+native openssl
+real	0m0,004s
+real	0m0,002s
+encript (otp)	decript (otp)	encript (sbox)	decript (sbox)
+0.000028s		0.000029s		0.000019s		0.000023s		
+-----------------------------------------------------
+

@@ -109,7 +109,7 @@ int aes(
 
     double tempo_gasto = encripta_decripta(arquivo_in, arquivo_out, aes_key, otp_key, func, encrypt);
 
-    printf("tempo gasto: %.6f segundos\n", tempo_gasto);
+    printf("%.6fs\t\t", tempo_gasto);
 
     fclose(arquivo_in);
     fclose(arquivo_out);
@@ -126,19 +126,13 @@ int main(int argc, char const *argv[])
     AES_set_encrypt_key(key, 128, &encryptKey);
     AES_set_decrypt_key(key, 128, &decryptKey);
 
-    printf("ENCRIPTANDO ARQUIVO COM OTP %s\n", argv[1]);
+    // printf("%s\n", argv[1]);
+    printf("encript (otp)\tdecript (otp)\tencript (sbox)\tdecript (sbox)\n");
     aes(argv[1], "encriptado_otp.txt", encryptKey, otp_key, com_otp, encripta);
-
-    printf("DECRIPTANDO ARQUIVO COM OTP %s\n", argv[1]);
     aes("encriptado_otp.txt", "decriptado_otp.txt", decryptKey, otp_key, com_otp, decripta);
-
-    printf("\n-----------------------------------------------------\n");
-
-    printf("ENCRIPTANDO ARQUIVO SEM OTP %s\n", argv[1]);
     aes(argv[1], "encriptado.txt", encryptKey, otp_key, sem_otp, encripta);
-
-    printf("DECRIPTANDO ARQUIVO SEM OTP %s\n", argv[1]);
     aes("encriptado.txt", "decriptado.txt", decryptKey, otp_key, sem_otp, decripta);
+    printf("\n-----------------------------------------------------\n\n");
 
     return 0;
 }
