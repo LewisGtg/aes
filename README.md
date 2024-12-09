@@ -1,8 +1,5 @@
 # aes
 
-## AVISO
-É NECESSÁRIO MUDAR O .h DA BIBLIOTECA OPENSSL PARA ACEITAR O NOVO PARÂMETRO QUE CONTEM A CHAVE DO ONE TIME PAD
-
 ## TODO
 - [x] Trocar a Caixa-S do AES por alguma outra cifra de substituição (exceto Cifra de Cesar)
 - [x] Calcular o tempo total para cifrar e decifrar arquivos de tamanhos diversos
