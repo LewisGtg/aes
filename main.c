@@ -3,6 +3,7 @@
 #include <time.h>
 #include "aes.h"
 #include "onetimepad.h"
+#define BUFFER_SIZE 16
 
 typedef enum flag_encripta
 {
@@ -16,34 +17,47 @@ typedef enum flag_otp
     com_otp,
 } flag_otp_e;
 
+int bytesPadding = 0;
+int lastReadIndex = 0;
+
 double encripta_decripta(
-    FILE * arquivo_in, 
-    FILE * arquivo_out,
+    FILE *arquivo_in,
+    FILE *arquivo_out,
     AES_KEY aes_key,
-    char * otp_key,
-    void (*func)(const unsigned char *in, unsigned char *out, const AES_KEY *key, char *OTP_KEY)
-)
+    char *otp_key,
+    void (*func)(const unsigned char *in, unsigned char *out, const AES_KEY *key, char *OTP_KEY),
+    int encrypt)
 {
     unsigned char text[17];
-    unsigned char buffer[16];
-    unsigned char content[16];
+    unsigned char buffer[BUFFER_SIZE];
+    unsigned char content[BUFFER_SIZE];
     size_t bytes_lidos;
 
     clock_t inicio, fim;
     double tempo_gasto;
 
     inicio = clock();
+    int readIndex = 0;
     while ((bytes_lidos = fread(buffer, 1, sizeof(buffer), arquivo_in)) > 0)
     {
+        readIndex++;
         for (size_t i = 0; i < bytes_lidos; i++)
-        {
             text[i] = buffer[i];
-        }
+
+        for (size_t i = bytes_lidos; i < BUFFER_SIZE; i++) // adiciona padding
+            text[i] = '@';
+
+        if (bytes_lidos < BUFFER_SIZE && encrypt)
+            bytesPadding = BUFFER_SIZE - bytes_lidos;
+
+        if (encrypt)
+            lastReadIndex = readIndex;
 
         func(text, content, &aes_key, otp_key);
-        fwrite(content, 1, 16, arquivo_out);
+        int bytesToWrite = !encrypt && bytesPadding && lastReadIndex == readIndex ? BUFFER_SIZE - bytesPadding : BUFFER_SIZE;
+        fwrite(content, 1, bytesToWrite, arquivo_out);
 
-        text[16] = '\0';
+        text[BUFFER_SIZE] = '\0';
     }
     fim = clock();
 
@@ -57,8 +71,7 @@ int aes(
     AES_KEY aes_key,
     char *otp_key,
     int otp,
-    int encrypt
-)
+    int encrypt)
 {
     FILE *arquivo_in;
     FILE *arquivo_out;
@@ -81,17 +94,21 @@ int aes(
 
     if (otp)
     {
-        if (encrypt) func = AES_encryptOTP;
-        else func = AES_decryptOTP;
+        if (encrypt)
+            func = AES_encryptOTP;
+        else
+            func = AES_decryptOTP;
     }
     else
     {
-        if (encrypt) func = AES_encrypt;
-        else func = AES_decrypt;
+        if (encrypt)
+            func = AES_encrypt;
+        else
+            func = AES_decrypt;
     }
 
-    double tempo_gasto = encripta_decripta(arquivo_in, arquivo_out, aes_key, otp_key, func);
-    
+    double tempo_gasto = encripta_decripta(arquivo_in, arquivo_out, aes_key, otp_key, func, encrypt);
+
     printf("tempo gasto: %.6f segundos\n", tempo_gasto);
 
     fclose(arquivo_in);
@@ -102,8 +119,8 @@ int main(int argc, char const *argv[])
 {
     AES_KEY encryptKey, decryptKey;
 
-    char *otp_key = geraChave(16);
-    char *key = geraChave(16);
+    char *otp_key = geraChave(BUFFER_SIZE);
+    char *key = geraChave(BUFFER_SIZE);
 
     // Set encryption and decryption keys
     AES_set_encrypt_key(key, 128, &encryptKey);
