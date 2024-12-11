@@ -2,6 +2,7 @@
 *.o
 encriptado*.txt
 decriptado*.txt
+final_output.txt
 main
 oneTimePad
 testaOnetimepad

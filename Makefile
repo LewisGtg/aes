@@ -13,4 +13,4 @@ onetimepad.o: onetimepad.c
 	gcc -c onetimepad.c -o onetimepad.o -O3
 
 clean:
-	rm -rf *.o encriptado.txt decriptado.txt main
+	rm -rf *.o encriptado*.txt decriptado*.txt main final_output.txt

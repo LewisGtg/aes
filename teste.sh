@@ -18,6 +18,12 @@ for test_file in "$TEST_DIR"/*; do
     # openssl decrypt
     { time openssl enc -in encriptado.txt -out /dev/null -d -aes256 -k symmetrickey; } 2>&1 | grep real >> "$OUTPUT_FILE"
     ./main "$test_file" >> "$OUTPUT_FILE"
+    diff $test_file decriptado_otp.txt > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+      echo "Arquivo decriptado igual ao original"
+    else
+      echo "Erro ao decriptar arquivo - arquivos não são iguais."
+    fi
   fi
 done
 
